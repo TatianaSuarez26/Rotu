@@ -92,6 +92,16 @@ public class Principal extends JFrame {
 
         panel.add(ico);
         panel.add(txt);
+
+        if (etiqueta.equals("Rutas")) {
+            panel.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    new Rutas().setVisible(true);
+                    dispose();
+                }
+            });
+        }
+
         return panel;
     }
 
