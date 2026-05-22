@@ -36,7 +36,7 @@ public class Principal extends JFrame {
         panel.setPreferredSize(new Dimension(1100, 55));
         panel.setBorder(new EmptyBorder(10, 20, 10, 20));
 
-        JLabel titulo = new JLabel("SIRUM");
+        JLabel titulo = new JLabel("ROTU");
         titulo.setForeground(Color.WHITE);
         titulo.setFont(new Font("Arial", Font.BOLD, 22));
 
@@ -71,8 +71,6 @@ public class Principal extends JFrame {
         panel.add(Box.createVerticalStrut(6));
         panel.add(crearItemSidebar("📍",  "Mapa",      false));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("☆",   "Guardadas", false));
-        panel.add(Box.createVerticalGlue());
         panel.add(crearItemSidebar("👤",  "Perfil",    false));
 
         return panel;
