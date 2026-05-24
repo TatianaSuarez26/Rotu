@@ -1,4 +1,4 @@
-package InterfazGrafica;
+package Rotu_System;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -93,14 +93,14 @@ public class Principal extends JFrame {
         panel.add(ico);
         panel.add(txt);
 
-        if (etiqueta.equals("Rutas")) {
-            panel.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked(java.awt.event.MouseEvent e) {
-                    new Rutas().setVisible(true);
-                    dispose();
+        panel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                switch (etiqueta) {
+                    case "Rutas"  -> { new Rutas().setVisible(true);  dispose(); }
+                    case "Perfil" -> { new Perfil().setVisible(true); dispose(); }
                 }
-            });
-        }
+            }
+        });
 
         return panel;
     }
@@ -308,8 +308,6 @@ public class Principal extends JFrame {
 
     // ── MAIN ──────────────────────────────────────────────────────────────────
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new Principal().setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new Principal().setVisible(true));
     }
 }
