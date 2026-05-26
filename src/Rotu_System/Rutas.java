@@ -2,6 +2,8 @@ package Rotu_System;
 
 import BaseDatos.RutaDAO;
 import BaseDatos.RutaDAO.Ruta;
+import Inicio.Inicio;
+import Mapa.MapaFrame;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -47,12 +49,7 @@ public class Rutas extends JFrame {
         JLabel titulo = new JLabel("ROTU");
         titulo.setForeground(Color.WHITE);
         titulo.setFont(new Font("Arial", Font.BOLD, 22));
-        JPanel der = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 0));
-        der.setBackground(DARK_GREEN);
-        JLabel campana = new JLabel("🔔"); campana.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18)); campana.setForeground(Color.WHITE);
-        JLabel usuario = new JLabel("👤"); usuario.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18)); usuario.setForeground(Color.WHITE);
-        der.add(campana); der.add(usuario);
-        panel.add(titulo, BorderLayout.WEST); panel.add(der, BorderLayout.EAST);
+        panel.add(titulo, BorderLayout.WEST);
         return panel;
     }
 
@@ -67,8 +64,6 @@ public class Rutas extends JFrame {
         panel.add(crearItemSidebar("⇄",  "Rutas",  true));
         panel.add(Box.createVerticalStrut(6));
         panel.add(crearItemSidebar("📍", "Mapa",   false));
-        panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("👤", "Perfil", false));
         return panel;
     }
 
@@ -83,8 +78,8 @@ public class Rutas extends JFrame {
         panel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 switch (etiqueta) {
-                    case "Inicio" -> { new Principal().setVisible(true); dispose(); }
-                    case "Perfil" -> { new Perfil().setVisible(true);   dispose(); }
+                    case "Inicio" -> { new Inicio().setVisible(true);     dispose(); }
+                    case "Mapa"   -> { new MapaFrame().setVisible(true);  dispose(); }
                 }
             }
         });
@@ -107,14 +102,8 @@ public class Rutas extends JFrame {
         JPanel textos = new JPanel(); textos.setLayout(new BoxLayout(textos, BoxLayout.Y_AXIS)); textos.setBackground(LIGHT_GREEN);
         JLabel sec = new JLabel("RUTAS"); sec.setFont(new Font("Arial", Font.PLAIN, 11)); sec.setForeground(DARK_GREEN);
         JLabel tit = new JLabel("Gestión de Rutas"); tit.setFont(new Font("Arial", Font.BOLD, 24)); tit.setForeground(TEXT_DARK);
-        JLabel sub = new JLabel("Consulta y administra todas las rutas disponibles"); sub.setFont(new Font("Arial", Font.PLAIN, 13)); sub.setForeground(DARK_GREEN);
-        textos.add(sec); textos.add(Box.createVerticalStrut(4)); textos.add(tit); textos.add(Box.createVerticalStrut(3)); textos.add(sub);
-        JButton btnNueva = new JButton("+ Nueva Ruta");
-        btnNueva.setBackground(DARK_GREEN); btnNueva.setForeground(Color.WHITE);
-        btnNueva.setFont(new Font("Arial", Font.BOLD, 13)); btnNueva.setBorder(new EmptyBorder(10, 20, 10, 20));
-        btnNueva.setFocusPainted(false); btnNueva.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnNueva.addActionListener(e -> abrirDialogoNuevaRuta());
-        panel.add(textos, BorderLayout.WEST); panel.add(btnNueva, BorderLayout.EAST);
+        textos.add(sec); textos.add(Box.createVerticalStrut(4)); textos.add(tit); textos.add(Box.createVerticalStrut(3));
+        panel.add(textos, BorderLayout.WEST);
         return panel;
     }
 
@@ -154,14 +143,7 @@ public class Rutas extends JFrame {
         filtroEstado.setFont(new Font("Arial", Font.PLAIN, 13)); filtroEstado.setPreferredSize(new Dimension(160, 38));
         filtroEstado.addActionListener(e -> aplicarFiltros());
 
-        JButton btnEliminar = new JButton("🗑  Eliminar");
-        btnEliminar.setFont(new Font("Arial", Font.PLAIN, 13)); btnEliminar.setForeground(new Color(180, 50, 50));
-        btnEliminar.setBackground(Color.WHITE);
-        btnEliminar.setBorder(BorderFactory.createCompoundBorder(new LineBorder(new Color(220, 180, 180), 1, true), new EmptyBorder(6, 14, 6, 14)));
-        btnEliminar.setFocusPainted(false); btnEliminar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnEliminar.addActionListener(e -> eliminarSeleccionada());
-
-        panel.add(caja); panel.add(filtroLinea); panel.add(filtroEstado); panel.add(btnEliminar);
+        panel.add(caja); panel.add(filtroLinea); panel.add(filtroEstado);
         return panel;
     }
 
@@ -209,69 +191,6 @@ public class Rutas extends JFrame {
         String estado = (String) filtroEstado.getSelectedItem();
         boolean hayTexto = !texto.isEmpty() && !texto.equals("Buscar ruta...");
         cargarDatos(hayTexto ? RutaDAO.buscar(texto) : RutaDAO.filtrar(linea, estado));
-    }
-
-    private void eliminarSeleccionada() {
-        int fila = tabla.getSelectedRow();
-        if (fila < 0) { JOptionPane.showMessageDialog(this, "Selecciona una ruta para eliminar.", "Aviso", JOptionPane.WARNING_MESSAGE); return; }
-        String nombre = (String) modeloTabla.getValueAt(fila, 1);
-        if (JOptionPane.showConfirmDialog(this, "¿Eliminar \"" + nombre + "\"?", "Confirmar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            int id = Integer.parseInt((String) modeloTabla.getValueAt(fila, 0));
-            if (RutaDAO.eliminar(id)) aplicarFiltros();
-        }
-    }
-
-    private void abrirDialogoNuevaRuta() {
-        JDialog d = new JDialog(this, "Nueva Ruta", true);
-        d.setSize(460, 440); d.setLocationRelativeTo(this); d.setResizable(false);
-        JPanel panel = new JPanel(); panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(new EmptyBorder(24, 28, 24, 28)); panel.setBackground(Color.WHITE);
-        JLabel tit = new JLabel("Agregar Nueva Ruta"); tit.setFont(new Font("Arial", Font.BOLD, 16)); tit.setForeground(TEXT_DARK); tit.setAlignmentX(LEFT_ALIGNMENT);
-        panel.add(tit); panel.add(Box.createVerticalStrut(20));
-        JTextField fNombre = campo("Nombre"); JTextField fOrigen = campo("Origen"); JTextField fDestino = campo("Destino");
-        JTextField fParadas = campo("Paradas"); JTextField fTiempo = campo("Tiempo (min)"); JTextField fDist = campo("Distancia (km)");
-        JComboBox<String> cbLinea = new JComboBox<>(new String[]{"Línea verde", "Línea azul", "Línea roja"});
-        cbLinea.setFont(new Font("Arial", Font.PLAIN, 13));
-        panel.add(fila("Nombre", fNombre)); panel.add(Box.createVerticalStrut(10));
-        panel.add(fila("Origen", fOrigen)); panel.add(Box.createVerticalStrut(10));
-        panel.add(fila("Destino", fDestino)); panel.add(Box.createVerticalStrut(10));
-        JPanel f2 = new JPanel(new GridLayout(1, 3, 10, 0)); f2.setBackground(Color.WHITE);
-        f2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 58)); f2.setAlignmentX(LEFT_ALIGNMENT);
-        f2.add(fila("Paradas", fParadas)); f2.add(fila("Tiempo(min)", fTiempo)); f2.add(fila("Dist.(km)", fDist));
-        panel.add(f2); panel.add(Box.createVerticalStrut(10)); panel.add(fila("Línea", cbLinea)); panel.add(Box.createVerticalStrut(20));
-        JPanel bots = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0)); bots.setBackground(Color.WHITE); bots.setAlignmentX(LEFT_ALIGNMENT);
-        JButton btnC = new JButton("Cancelar"); btnC.setFont(new Font("Arial", Font.PLAIN, 13)); btnC.addActionListener(e -> d.dispose());
-        JButton btnG = new JButton("Guardar"); btnG.setBackground(DARK_GREEN); btnG.setForeground(Color.WHITE);
-        btnG.setFont(new Font("Arial", Font.BOLD, 13)); btnG.setBorder(new EmptyBorder(8, 20, 8, 20)); btnG.setFocusPainted(false);
-        btnG.addActionListener(e -> {
-            try {
-                Ruta r = new Ruta(0, fNombre.getText().trim(), fOrigen.getText().trim(), fDestino.getText().trim(),
-                    Integer.parseInt(fParadas.getText().trim()), Integer.parseInt(fTiempo.getText().trim()),
-                    Double.parseDouble(fDist.getText().trim()), (String) cbLinea.getSelectedItem(), "Activa");
-                if (RutaDAO.insertar(r)) { aplicarFiltros(); d.dispose(); }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(d, "Paradas, tiempo y distancia deben ser números.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        bots.add(btnC); bots.add(btnG); panel.add(bots);
-        d.setContentPane(panel); d.setVisible(true);
-    }
-
-    private JTextField campo(String ph) {
-        JTextField f = new JTextField(ph); f.setFont(new Font("Arial", Font.PLAIN, 13)); f.setForeground(Color.GRAY);
-        f.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent e) { if (f.getText().equals(ph)) { f.setText(""); f.setForeground(TEXT_DARK); } }
-        });
-        f.setBorder(BorderFactory.createCompoundBorder(new LineBorder(BORDER_COLOR, 1, true), new EmptyBorder(7, 10, 7, 10)));
-        return f;
-    }
-
-    private JPanel fila(String label, JComponent comp) {
-        JPanel p = new JPanel(); p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setBackground(Color.WHITE); p.setAlignmentX(LEFT_ALIGNMENT); p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 58));
-        JLabel lbl = new JLabel(label); lbl.setFont(new Font("Arial", Font.BOLD, 11)); lbl.setForeground(TEXT_GRAY); lbl.setAlignmentX(LEFT_ALIGNMENT);
-        comp.setAlignmentX(LEFT_ALIGNMENT); comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        p.add(lbl); p.add(Box.createVerticalStrut(4)); p.add(comp); return p;
     }
 
     public static void main(String[] args) {

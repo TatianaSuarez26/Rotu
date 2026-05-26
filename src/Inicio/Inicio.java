@@ -1,11 +1,17 @@
-package Rotu_System;
+package Inicio;
 
+import BaseDatos.Conexion;
 import Mapa.MapaFrame;
+import Rotu_System.Rutas;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Principal extends JFrame {
+public class Inicio extends JFrame {
 
     private static final Color DARK_GREEN   = new Color(27, 94, 60);
     private static final Color LIGHT_GREEN  = new Color(220, 245, 225);
@@ -15,7 +21,10 @@ public class Principal extends JFrame {
     private static final Color BORDER_COLOR = new Color(220, 220, 220);
     private static final Color SIDEBAR_BG   = new Color(22, 78, 50);
 
-    public Principal() {
+    // ID del usuario activo (Carlos Rodríguez)
+    private static final int ID_USUARIO = 1;
+
+    public Inicio() {
         setTitle("ROTU");
         setSize(1100, 700);
         setMinimumSize(new Dimension(900, 600));
@@ -26,7 +35,6 @@ public class Principal extends JFrame {
         root.add(crearTopBar(),    BorderLayout.NORTH);
         root.add(crearSidebar(),   BorderLayout.WEST);
         root.add(crearContenido(), BorderLayout.CENTER);
-
         setContentPane(root);
     }
 
@@ -41,11 +49,7 @@ public class Principal extends JFrame {
         titulo.setForeground(Color.WHITE);
         titulo.setFont(new Font("Arial", Font.BOLD, 22));
 
-        JPanel derecha = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 0));
-        derecha.setBackground(DARK_GREEN);
-
-        panel.add(titulo,  BorderLayout.WEST);
-        panel.add(derecha, BorderLayout.EAST);
+        panel.add(titulo, BorderLayout.WEST);
         return panel;
     }
 
@@ -57,12 +61,11 @@ public class Principal extends JFrame {
         panel.setPreferredSize(new Dimension(200, 700));
         panel.setBorder(new EmptyBorder(30, 0, 30, 0));
 
-        panel.add(crearItemSidebar("🏠",  "Inicio",    true));
+        panel.add(crearItemSidebar("🏠", "Inicio", true));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("⇄",   "Rutas",     false));
+        panel.add(crearItemSidebar("⇄",  "Rutas",  false));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("📍",  "Mapa",      false));
-        panel.add(Box.createVerticalStrut(6));
+        panel.add(crearItemSidebar("📍", "Mapa",   false));
         return panel;
     }
 
@@ -72,39 +75,30 @@ public class Principal extends JFrame {
         panel.setBackground(activo ? DARK_GREEN : SIDEBAR_BG);
         panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        JLabel ico = new JLabel(icono);
-        ico.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
-        ico.setForeground(Color.WHITE);
-
-        JLabel txt = new JLabel(etiqueta);
-        txt.setFont(new Font("Arial", activo ? Font.BOLD : Font.PLAIN, 13));
-        txt.setForeground(Color.WHITE);
-
-        panel.add(ico);
-        panel.add(txt);
+        JLabel ico = new JLabel(icono); ico.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16)); ico.setForeground(Color.WHITE);
+        JLabel txt = new JLabel(etiqueta); txt.setFont(new Font("Arial", activo ? Font.BOLD : Font.PLAIN, 13)); txt.setForeground(Color.WHITE);
+        panel.add(ico); panel.add(txt);
 
         panel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 switch (etiqueta) {
-                    case "Rutas"  -> { new Rutas().setVisible(true);      dispose(); }
-                    case "Mapa"   -> { new MapaFrame().setVisible(true);  dispose(); }
+                    case "Rutas" -> { new Rutas().setVisible(true);     dispose(); }
+                    case "Mapa"  -> { new MapaFrame().setVisible(true); dispose(); }
                 }
             }
         });
-
         return panel;
     }
 
-    // ── CONTENIDO PRINCIPAL ───────────────────────────────────────────────────
+    // ── CONTENIDO ─────────────────────────────────────────────────────────────
     private JScrollPane crearContenido() {
         JPanel contenido = new JPanel();
         contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
         contenido.setBackground(Color.WHITE);
 
         contenido.add(crearEncabezado());
-        contenido.add(crearBuscador());
         contenido.add(crearAccesosRapidos());
-        contenido.add(crearRutasRecientes());
+        contenido.add(crearRutasGuardadas());
 
         JScrollPane scroll = new JScrollPane(contenido);
         scroll.setBorder(null);
@@ -113,7 +107,7 @@ public class Principal extends JFrame {
         return scroll;
     }
 
-    // ── ENCABEZADO VERDE ──────────────────────────────────────────────────────
+    // ── ENCABEZADO ────────────────────────────────────────────────────────────
     private JPanel crearEncabezado() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -144,34 +138,6 @@ public class Principal extends JFrame {
         return panel;
     }
 
-    // ── BUSCADOR ──────────────────────────────────────────────────────────────
-    private JPanel crearBuscador() {
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setBackground(Color.WHITE);
-        wrapper.setBorder(new EmptyBorder(20, 32, 10, 32));
-        wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 72));
-
-        JPanel caja = new JPanel(new BorderLayout());
-        caja.setBackground(Color.WHITE);
-        caja.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(BORDER_COLOR, 1, true),
-            new EmptyBorder(10, 14, 10, 14)
-        ));
-
-        JLabel lupa = new JLabel("🔍  ");
-        lupa.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 15));
-
-        JTextField campo = new JTextField("Buscar estación o destino...");
-        campo.setBorder(null);
-        campo.setFont(new Font("Arial", Font.PLAIN, 14));
-        campo.setForeground(Color.GRAY);
-
-        caja.add(lupa,  BorderLayout.WEST);
-        caja.add(campo, BorderLayout.CENTER);
-        wrapper.add(caja);
-        return wrapper;
-    }
-
     // ── ACCESOS RÁPIDOS ───────────────────────────────────────────────────────
     private JPanel crearAccesosRapidos() {
         JPanel outer = new JPanel();
@@ -186,13 +152,29 @@ public class Principal extends JFrame {
         outer.add(titulo);
         outer.add(Box.createVerticalStrut(12));
 
-        JPanel grid = new JPanel(new GridLayout(1, 4, 14, 0));
+        JPanel grid = new JPanel(new GridLayout(1, 2, 14, 0));
         grid.setBackground(Color.WHITE);
         grid.setAlignmentX(LEFT_ALIGNMENT);
         grid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
-        grid.add(crearTarjeta("⇄",  "Buscar ruta",    "Origen a destino"));
-        grid.add(crearTarjeta("📍", "Estaciones",     "Ver todas las paradas"));
-        grid.add(crearTarjeta("🕓", "Tiempos en vivo","Estado del sistema"));
+
+        // Buscar ruta → abre Rutas
+        JPanel cardRutas = crearTarjeta("⇄", "Buscar ruta", "Origen a destino");
+        cardRutas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                new Rutas().setVisible(true); dispose();
+            }
+        });
+
+        // Estaciones → abre Mapa
+        JPanel cardMapa = crearTarjeta("📍", "Estaciones", "Ver todas las paradas");
+        cardMapa.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                new MapaFrame().setVisible(true); dispose();
+            }
+        });
+
+        grid.add(cardRutas);
+        grid.add(cardMapa);
 
         outer.add(grid);
         return outer;
@@ -231,27 +213,72 @@ public class Principal extends JFrame {
         return card;
     }
 
-    // ── RUTAS RECIENTES ───────────────────────────────────────────────────────
-    private JPanel crearRutasRecientes() {
+    // ── MIS RUTAS GUARDADAS (desde BD) ────────────────────────────────────────
+    private JPanel crearRutasGuardadas() {
         JPanel outer = new JPanel();
         outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
         outer.setBackground(Color.WHITE);
         outer.setBorder(new EmptyBorder(20, 32, 32, 32));
 
-        JLabel titulo = new JLabel("RUTAS RECIENTES");
+        JLabel titulo = new JLabel("MIS RUTAS GUARDADAS");
         titulo.setFont(new Font("Arial", Font.BOLD, 12));
         titulo.setForeground(TEXT_DARK);
         titulo.setAlignmentX(LEFT_ALIGNMENT);
         outer.add(titulo);
         outer.add(Box.createVerticalStrut(10));
 
-        outer.add(crearItemRuta("Portal Norte → Centro",  "3 paradas · Línea verde", "12 min"));
-        outer.add(new JSeparator());
-        outer.add(crearItemRuta("Calle 100 → Soacha",     "7 paradas · Línea azul",  "28 min"));
-        outer.add(new JSeparator());
-        outer.add(crearItemRuta("Usaquén → Av. Jiménez",  "5 paradas · Línea verde", "19 min"));
+        List<String[]> rutas = cargarRutasGuardadas();
+
+        if (rutas.isEmpty()) {
+            JLabel vacio = new JLabel("No tienes rutas guardadas aún.");
+            vacio.setFont(new Font("Arial", Font.ITALIC, 13));
+            vacio.setForeground(TEXT_GRAY);
+            vacio.setAlignmentX(LEFT_ALIGNMENT);
+            outer.add(vacio);
+        } else {
+            for (int i = 0; i < rutas.size(); i++) {
+                String[] r = rutas.get(i);
+                // r = [nombre, origen, destino, paradas, tiempo, linea]
+                String nombre   = r[0];
+                String detalles = r[3] + " paradas · " + r[5];
+                String tiempo   = r[4] + " min";
+                outer.add(crearItemRuta(nombre, detalles, tiempo));
+                if (i < rutas.size() - 1) outer.add(new JSeparator());
+            }
+        }
 
         return outer;
+    }
+
+    /** Consulta las rutas guardadas del usuario activo junto con sus datos. */
+    private List<String[]> cargarRutasGuardadas() {
+        List<String[]> lista = new ArrayList<>();
+        String sql = """
+            SELECT r.nombre, r.origen, r.destino,
+                   r.paradas, r.tiempo, r.linea
+            FROM rutas_guardadas rg
+            JOIN rutas r ON rg.id_ruta = r.id
+            WHERE rg.id_usuario = ?
+            ORDER BY rg.fecha DESC
+        """;
+        try (Connection con = Conexion.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, ID_USUARIO);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                lista.add(new String[]{
+                    rs.getString("nombre"),
+                    rs.getString("origen"),
+                    rs.getString("destino"),
+                    rs.getInt("paradas") + "",
+                    rs.getInt("tiempo")  + "",
+                    rs.getString("linea")
+                });
+            }
+        } catch (SQLException e) {
+            System.err.println("Error cargando rutas guardadas: " + e.getMessage());
+        }
+        return lista;
     }
 
     private JPanel crearItemRuta(String ruta, String detalles, String tiempo) {
@@ -297,6 +324,6 @@ public class Principal extends JFrame {
 
     // ── MAIN ──────────────────────────────────────────────────────────────────
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Inicio.Inicio().setVisible(true));
+        SwingUtilities.invokeLater(() -> new Inicio().setVisible(true));
     }
 }
