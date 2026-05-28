@@ -32,7 +32,7 @@ public class MapaPanel extends JPanel{
     private static final int   R           = 14;
     private static final int   R_HUB       = 17;
 
-    // ── Coordenadas fijas por id ──────────────────────────────────────────────
+    //  Coordenadas fijas por id
     private static final Map<Integer, int[]> COORDS = new HashMap<>();
     static {
         COORDS.put(1,  new int[]{310, 60});   // Portal Norte
@@ -80,7 +80,7 @@ public class MapaPanel extends JPanel{
 
     public void setRutaListener(RutaListener l) { this.rutaListener = l; }
 
-    // ── Constructor ───────────────────────────────────────────────────────────
+    //  Constructor
     public MapaPanel() {
         setPreferredSize(new Dimension(660, 500));
         setBackground(COL_BG);
@@ -126,7 +126,7 @@ public class MapaPanel extends JPanel{
         cargarDatos();
     }
 
-    // ── Selección programática desde ComboBox ─────────────────────────────────
+    //  Selección programática desde ComboBox
     public void seleccionarOrigen(int id) {
         origenId  = id;
         destinoId = -1;
@@ -151,39 +151,22 @@ public class MapaPanel extends JPanel{
         repaint();
     }
 
-    // ── Cargar datos de la BD ─────────────────────────────────────────────────
+    //  Cargar datos de la BD
     public void cargarDatos() {
         estaciones  = MapaDAO.obtenerEstaciones();
         aristas     = new ArrayList<>(MapaDAO.obtenerAristas());
         aristasBidi = MapaDAO.obtenerAristasBidireccionales();
-        // Garantizar arista Av.Jiménez(6)<->Américas(10) en el dibujo
-        boolean tiene = false;
-        for (Arista a : aristas) {
-            if ((a.idOrigen == 6 && a.idDestino == 10) ||
-                    (a.idOrigen == 10 && a.idDestino == 6)) { tiene = true; break; }
-        }
-        if (!tiene) aristas.add(new Arista(6, 10, 8, 4.7));
         repaint();
     }
 
     public List<Estacion> getEstaciones() { return estaciones; }
 
-    // ── Dijkstra ──────────────────────────────────────────────────────────────
+    //  Dijkstra
     private void calcularRuta() {
-        // Garantizar que la arista Jiménez(6)<->Américas(10) siempre esté presente
-        List<Arista> aristasConNueva = new ArrayList<>(aristasBidi);
-        boolean tiene6_10 = false, tiene10_6 = false;
-        for (Arista a : aristasBidi) {
-            if (a.idOrigen == 6  && a.idDestino == 10) tiene6_10 = true;
-            if (a.idOrigen == 10 && a.idDestino == 6)  tiene10_6 = true;
-        }
-        if (!tiene6_10) aristasConNueva.add(new Arista(6,  10, 8, 4.7));
-        if (!tiene10_6) aristasConNueva.add(new Arista(10, 6,  8, 4.7));
-
-        ResultadoRuta resultado = MapaDAO.dijkstra(origenId, destinoId, estaciones, aristasConNueva);
+        ResultadoRuta resultado = MapaDAO.dijkstra(origenId, destinoId, estaciones, aristasBidi);
 
         // Calcular todas las rutas posibles (DFS)
-        todasRutas = MapaDAO.todasLasRutas(origenId, destinoId, estaciones, aristasConNueva);
+        todasRutas = MapaDAO.todasLasRutas(origenId, destinoId, estaciones, aristasBidi);
 
         if (resultado == null) {
             infoTexto = "⚠ No hay ruta entre las estaciones seleccionadas";
@@ -204,7 +187,7 @@ public class MapaPanel extends JPanel{
         }
     }
 
-    // ── Pintar ────────────────────────────────────────────────────────────────
+    //  Pintar
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -227,47 +210,6 @@ public class MapaPanel extends JPanel{
         if (!infoTexto.isEmpty()) dibujarInfo(g2);
     }
 
-
-    // ── Conexión nueva Av.Jiménez(6) <-> Américas(10): siempre dibujada ───────
-    private void dibujarConexionNueva(Graphics2D g2, Set<String> aristaRuta) {
-        int[] co = COORDS.get(6);
-        int[] cd = COORDS.get(10);
-        if (co == null || cd == null) return;
-
-        boolean esRuta = aristaRuta.contains("6-10") || aristaRuta.contains("10-6");
-
-        if (esRuta) {
-            g2.setStroke(new BasicStroke(6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.setColor(new Color(COL_RUTA.getRed(), COL_RUTA.getGreen(), COL_RUTA.getBlue(), 220));
-        } else {
-            // Igual que las demás aristas normales: color de línea verde con opacidad 130
-            g2.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.setColor(new Color(COL_AZUL.getRed(), COL_AZUL.getGreen(), COL_AZUL.getBlue(), 130));
-        }
-        g2.drawLine(co[0], co[1], cd[0], cd[1]);
-        g2.setStroke(new BasicStroke(1f));
-
-        // Etiqueta igual que las demás: fondo blanco, texto gris oscuro
-        int mx = (co[0] + cd[0]) / 2;
-        int my = (co[1] + cd[1]) / 2;
-        int dx = cd[0] - co[0], dy = cd[1] - co[1];
-        double len = Math.sqrt(dx * dx + dy * dy);
-        int ox = 0, oy = -4;
-        if (len > 0) { ox = (int)(-dy / len * 10); oy = (int)(dx / len * 10) - 2; }
-
-        Font f = new Font("Arial", Font.BOLD, 10);
-        g2.setFont(f);
-        FontMetrics fm = g2.getFontMetrics();
-        String label = "8 min";
-        int lw = fm.stringWidth(label);
-        int lx = mx + ox - lw / 2;
-        int ly = my + oy;
-
-        g2.setColor(new Color(255, 255, 255, 185));
-        g2.fillRoundRect(lx - 2, ly - fm.getAscent(), lw + 4, fm.getHeight() + 1, 4, 4);
-        g2.setColor(new Color(60, 60, 60));
-        g2.drawString(label, lx, ly);
-    }
 
     private void dibujarAristas(Graphics2D g2, Map<Integer, Estacion> map, Set<String> aristaRuta) {
         Font fArista = new Font("Arial", Font.BOLD, 10);
@@ -424,7 +366,7 @@ public class MapaPanel extends JPanel{
         g2.drawString(infoTexto, bx + 10, by + 20);
     }
 
-    // ── Utilidades ────────────────────────────────────────────────────────────
+    // ── Utilidades
     private int estacionEnPunto(int px, int py) {
         for (Estacion e : estaciones) {
             int[] c = COORDS.get(e.id);

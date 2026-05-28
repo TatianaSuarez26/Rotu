@@ -23,15 +23,15 @@ public class Principal extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel root = new JPanel(new BorderLayout());
-        root.add(crearTopBar(),    BorderLayout.NORTH);
-        root.add(crearSidebar(),   BorderLayout.WEST);
-        root.add(crearContenido(), BorderLayout.CENTER);
+        root.add(topBar(),    BorderLayout.NORTH);
+        root.add(sidebar(),   BorderLayout.WEST);
+        root.add(contenido(), BorderLayout.CENTER);
 
         setContentPane(root);
     }
 
     // ── BARRA SUPERIOR ────────────────────────────────────────────────────────
-    private JPanel crearTopBar() {
+    private JPanel topBar() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(DARK_GREEN);
         panel.setPreferredSize(new Dimension(1100, 55));
@@ -50,23 +50,23 @@ public class Principal extends JFrame {
     }
 
     // ── BARRA LATERAL ─────────────────────────────────────────────────────────
-    private JPanel crearSidebar() {
+    private JPanel sidebar() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(SIDEBAR_BG);
         panel.setPreferredSize(new Dimension(200, 700));
         panel.setBorder(new EmptyBorder(30, 0, 30, 0));
 
-        panel.add(crearItemSidebar("🏠",  "Inicio",    true));
+        panel.add(itemSidebar("🏠",  "Inicio",    true));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("⇄",   "Rutas",     false));
+        panel.add(itemSidebar("⇄",   "Rutas",     false));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("📍",  "Mapa",      false));
+        panel.add(itemSidebar("📍",  "Mapa",      false));
         panel.add(Box.createVerticalStrut(6));
         return panel;
     }
 
-    private JPanel crearItemSidebar(String icono, String etiqueta, boolean activo) {
+    private JPanel itemSidebar(String icono, String etiqueta, boolean activo) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 18, 10));
         panel.setMaximumSize(new Dimension(200, 48));
         panel.setBackground(activo ? DARK_GREEN : SIDEBAR_BG);
@@ -96,15 +96,15 @@ public class Principal extends JFrame {
     }
 
     // ── CONTENIDO PRINCIPAL ───────────────────────────────────────────────────
-    private JScrollPane crearContenido() {
+    private JScrollPane contenido() {
         JPanel contenido = new JPanel();
         contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
         contenido.setBackground(Color.WHITE);
 
-        contenido.add(crearEncabezado());
-        contenido.add(crearBuscador());
-        contenido.add(crearAccesosRapidos());
-        contenido.add(crearRutasRecientes());
+        contenido.add(encabezado());
+        contenido.add(buscador());
+        contenido.add(accesosRapidos());
+        contenido.add(rutasRecientes());
 
         JScrollPane scroll = new JScrollPane(contenido);
         scroll.setBorder(null);
@@ -114,7 +114,7 @@ public class Principal extends JFrame {
     }
 
     // ── ENCABEZADO VERDE ──────────────────────────────────────────────────────
-    private JPanel crearEncabezado() {
+    private JPanel encabezado() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(LIGHT_GREEN);
@@ -145,7 +145,7 @@ public class Principal extends JFrame {
     }
 
     // ── BUSCADOR ──────────────────────────────────────────────────────────────
-    private JPanel crearBuscador() {
+    private JPanel buscador() {
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(Color.WHITE);
         wrapper.setBorder(new EmptyBorder(20, 32, 10, 32));
@@ -173,7 +173,7 @@ public class Principal extends JFrame {
     }
 
     // ── ACCESOS RÁPIDOS ───────────────────────────────────────────────────────
-    private JPanel crearAccesosRapidos() {
+    private JPanel accesosRapidos() {
         JPanel outer = new JPanel();
         outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
         outer.setBackground(Color.WHITE);
@@ -190,15 +190,15 @@ public class Principal extends JFrame {
         grid.setBackground(Color.WHITE);
         grid.setAlignmentX(LEFT_ALIGNMENT);
         grid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
-        grid.add(crearTarjeta("⇄",  "Buscar ruta",    "Origen a destino"));
-        grid.add(crearTarjeta("📍", "Estaciones",     "Ver todas las paradas"));
-        grid.add(crearTarjeta("🕓", "Tiempos en vivo","Estado del sistema"));
+        grid.add(tarjeta("⇄",  "Buscar ruta",    "Origen a destino"));
+        grid.add(tarjeta("📍", "Estaciones",     "Ver todas las paradas"));
+        grid.add(tarjeta("🕓", "Tiempos en vivo","Estado del sistema"));
 
         outer.add(grid);
         return outer;
     }
 
-    private JPanel crearTarjeta(String icono, String titulo, String subtitulo) {
+    private JPanel tarjeta(String icono, String titulo, String subtitulo) {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBackground(CARD_BG);
@@ -231,8 +231,8 @@ public class Principal extends JFrame {
         return card;
     }
 
-    // ── RUTAS RECIENTES ───────────────────────────────────────────────────────
-    private JPanel crearRutasRecientes() {
+    // RUTAS RECIENTES
+    private JPanel rutasRecientes() {
         JPanel outer = new JPanel();
         outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
         outer.setBackground(Color.WHITE);
@@ -245,16 +245,16 @@ public class Principal extends JFrame {
         outer.add(titulo);
         outer.add(Box.createVerticalStrut(10));
 
-        outer.add(crearItemRuta("Portal Norte → Centro",  "3 paradas · Línea verde", "12 min"));
+        outer.add(itemRuta("Portal Norte → Centro",  "3 paradas · Línea verde", "12 min"));
         outer.add(new JSeparator());
-        outer.add(crearItemRuta("Calle 100 → Soacha",     "7 paradas · Línea azul",  "28 min"));
+        outer.add(itemRuta("Calle 100 → Soacha",     "7 paradas · Línea azul",  "28 min"));
         outer.add(new JSeparator());
-        outer.add(crearItemRuta("Usaquén → Av. Jiménez",  "5 paradas · Línea verde", "19 min"));
+        outer.add(itemRuta("Usaquén → Av. Jiménez",  "5 paradas · Línea verde", "19 min"));
 
         return outer;
     }
 
-    private JPanel crearItemRuta(String ruta, String detalles, String tiempo) {
+    private JPanel itemRuta(String ruta, String detalles, String tiempo) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(12, 0, 12, 0));
@@ -295,7 +295,7 @@ public class Principal extends JFrame {
         return panel;
     }
 
-    // ── MAIN ──────────────────────────────────────────────────────────────────
+    // ── MAIN
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Inicio.Inicio().setVisible(true));
     }

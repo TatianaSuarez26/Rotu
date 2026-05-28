@@ -6,7 +6,7 @@ import java.util.List;
 
 public class RutaDAO {
 
-    // ── Modelo Ruta ───────────────────────────────────────────────────────────
+    // Modelo Ruta
     public static class Ruta {
         public int    id;
         public String nombre, origen, destino, linea, estado;
@@ -29,7 +29,7 @@ public class RutaDAO {
         }
     }
 
-    // ── Obtener todas ─────────────────────────────────────────────────────────
+    // Obtener todas
     public static List<Ruta> obtenerTodas() {
         List<Ruta> lista = new ArrayList<>();
         try (Connection con = Conexion.getConexion();
@@ -40,7 +40,7 @@ public class RutaDAO {
         return lista;
     }
 
-    // ── Buscar por texto ──────────────────────────────────────────────────────
+    // Buscar por texto
     public static List<Ruta> buscar(String texto) {
         List<Ruta> lista = new ArrayList<>();
         String sql = "SELECT * FROM rutas WHERE LOWER(nombre) LIKE ? OR LOWER(origen) LIKE ? OR LOWER(destino) LIKE ? ORDER BY id";
@@ -54,7 +54,7 @@ public class RutaDAO {
         return lista;
     }
 
-    // ── Filtrar por línea y estado ────────────────────────────────────────────
+    // Filtrar por línea y estado
     public static List<Ruta> filtrar(String linea, String estado) {
         List<Ruta> lista = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM rutas WHERE 1=1");
@@ -72,7 +72,7 @@ public class RutaDAO {
         return lista;
     }
 
-    // ── Insertar ──────────────────────────────────────────────────────────────
+    // Insertar
     public static boolean insertar(Ruta r) {
         String sql = "INSERT INTO rutas (nombre,origen,destino,paradas,tiempo,distancia,linea,estado) VALUES (?,?,?,?,?,?,?,?)";
         try (Connection con = Conexion.getConexion();
@@ -85,7 +85,7 @@ public class RutaDAO {
         } catch (SQLException e) { System.err.println(e.getMessage()); return false; }
     }
 
-    // ── Eliminar ──────────────────────────────────────────────────────────────
+    // Eliminar
     public static boolean eliminar(int id) {
         try (Connection con = Conexion.getConexion();
              PreparedStatement ps = con.prepareStatement("DELETE FROM rutas WHERE id=?")) {
@@ -93,7 +93,7 @@ public class RutaDAO {
         } catch (SQLException e) { System.err.println(e.getMessage()); return false; }
     }
 
-    // ── Mapper ────────────────────────────────────────────────────────────────
+    // Mapper
     private static Ruta mapear(ResultSet rs) throws SQLException {
         return new Ruta(rs.getInt("id"), rs.getString("nombre"),
             rs.getString("origen"), rs.getString("destino"),

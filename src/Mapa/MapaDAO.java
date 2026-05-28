@@ -3,7 +3,8 @@ import BaseDatos.Conexion;
 import java.sql.*;
 import java.util.*;
 public class MapaDAO {
-    // ── Modelo Estacion ───────────────────────────────────────────────────────
+
+    //  Estacion
     public static class Estacion {
         public int    id;
         public String nombre, linea, descripcion;
@@ -16,7 +17,7 @@ public class MapaDAO {
         }
     }
 
-    // ── Modelo Arista ─────────────────────────────────────────────────────────
+    // Arista
     public static class Arista {
         public int    idOrigen, idDestino, tiempo;
         public double distancia;
@@ -29,7 +30,7 @@ public class MapaDAO {
         }
     }
 
-    // ── Resultado de ruta Dijkstra ────────────────────────────────────────────
+    // Resultado de ruta Dijkstra
     public static class ResultadoRuta {
         public List<Integer> camino;
         public int           tiempoTotal;
@@ -42,22 +43,7 @@ public class MapaDAO {
         }
     }
 
-    // ── Grafo hardcodeado (fallback si BD no disponible) ─────────────────────
-    // [idOrigen, idDestino, tiempo, distancia*10]
-    private static final int[][] ARISTAS_DEFAULT = {
-            {1,3,12,85},{3,1,12,85},{1,11,8,52},{11,1,8,52},
-            {11,3,10,61},{3,11,10,61},{3,6,5,23},{6,3,5,23},
-            {5,11,7,48},{11,5,7,48},{11,12,20,135},{12,11,20,135},
-            {2,4,28,182},{4,2,28,182},{2,10,12,79},{10,2,12,79},
-            {10,4,18,114},{4,10,18,114},{9,10,10,65},{10,9,10,65},
-            {7,8,15,98},{8,7,15,98},{7,13,12,73},{13,7,12,73},
-            {13,3,22,146},{3,13,22,146},{14,15,20,130},{15,14,20,130},
-            {14,7,10,62},{7,14,10,62},
-            // *** Av. Jiménez (6) <-> Américas (10) ***
-            {6,10,8,47},{10,6,8,47}
-    };
-
-    // ── Obtener todas las estaciones ──────────────────────────────────────────
+    //  Obtener todas las estaciones
     public static List<Estacion> obtenerEstaciones() {
         List<Estacion> lista = new ArrayList<>();
         String sql = "SELECT id, nombre, linea, descripcion FROM estaciones ORDER BY id";
@@ -78,7 +64,7 @@ public class MapaDAO {
         return lista;
     }
 
-    // ── Obtener aristas para dibujo (sin duplicar) ────────────────────────────
+    // Obtener aristas para dibujo (sin duplicar)
     public static List<Arista> obtenerAristas() {
         List<Arista> lista = new ArrayList<>();
         String sql = "SELECT id_origen, id_destino, tiempo, distancia "
@@ -96,18 +82,11 @@ public class MapaDAO {
             }
         } catch (SQLException e) {
             System.err.println("MapaDAO.obtenerAristas: " + e.getMessage());
-            // Fallback: cargar desde hardcoded (solo id_origen < id_destino)
-            Set<String> visto = new HashSet<>();
-            for (int[] a : ARISTAS_DEFAULT) {
-                if (a[0] < a[1]) {
-                    lista.add(new Arista(a[0], a[1], a[2], a[3] / 10.0));
-                }
-            }
         }
         return lista;
     }
 
-    // ── Obtener aristas bidireccionales (para Dijkstra) ───────────────────────
+    //  Obtener aristas bidireccionales (para Dijkstra)
     public static List<Arista> obtenerAristasBidireccionales() {
         List<Arista> lista = new ArrayList<>();
         String sql = "SELECT id_origen, id_destino, tiempo, distancia FROM conexiones";
@@ -122,20 +101,8 @@ public class MapaDAO {
                         rs.getDouble("distancia")
                 ));
             }
-            // Si la BD no tiene la nueva arista todavia, agregarla
-            boolean tiene6a10 = false, tiene10a6 = false;
-            for (Arista a : lista) {
-                if (a.idOrigen == 6  && a.idDestino == 10) tiene6a10 = true;
-                if (a.idOrigen == 10 && a.idDestino == 6)  tiene10a6 = true;
-            }
-            if (!tiene6a10) lista.add(new Arista(6,  10, 8, 4.7));
-            if (!tiene10a6) lista.add(new Arista(10, 6,  8, 4.7));
         } catch (SQLException e) {
             System.err.println("MapaDAO.obtenerAristasBidireccionales: " + e.getMessage());
-            // Fallback completo desde hardcoded
-            for (int[] a : ARISTAS_DEFAULT) {
-                lista.add(new Arista(a[0], a[1], a[2], a[3] / 10.0));
-            }
         }
         return lista;
     }
@@ -145,13 +112,8 @@ public class MapaDAO {
                                          List<Estacion> estaciones,
                                          List<Arista>   aristasParam) {
 
-        // Si no hay aristas de BD, usar hardcoded
-        List<Arista> fuente = (aristasParam != null && !aristasParam.isEmpty())
-                ? aristasParam : new ArrayList<>();
-        if (fuente.isEmpty()) {
-            for (int[] a : ARISTAS_DEFAULT)
-                fuente.add(new Arista(a[0], a[1], a[2], a[3] / 10.0));
-        }
+        if (aristasParam == null || aristasParam.isEmpty()) return null;
+        List<Arista> fuente = aristasParam;
 
         // Construir grafo (bidireccional aunque ya vengan en ambos sentidos)
         Map<Integer, List<int[]>> grafo = new HashMap<>();
@@ -230,13 +192,8 @@ public class MapaDAO {
     public static List<ResultadoRuta> todasLasRutas(int origenId, int destinoId,
                                                     List<Estacion> estaciones,
                                                     List<Arista>   aristasParam) {
-        // Construir grafo bidireccional igual que Dijkstra
-        List<Arista> fuente = (aristasParam != null && !aristasParam.isEmpty())
-                ? aristasParam : new ArrayList<>();
-        if (fuente.isEmpty()) {
-            for (int[] a : ARISTAS_DEFAULT)
-                fuente.add(new Arista(a[0], a[1], a[2], a[3] / 10.0));
-        }
+        if (aristasParam == null || aristasParam.isEmpty()) return new ArrayList<>();
+        List<Arista> fuente = aristasParam;
 
         Map<Integer, List<int[]>> grafo = new HashMap<>();
         Set<String> agregadas = new HashSet<>();

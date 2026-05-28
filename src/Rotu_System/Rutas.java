@@ -35,13 +35,13 @@ public class Rutas extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel root = new JPanel(new BorderLayout());
-        root.add(crearTopBar(),    BorderLayout.NORTH);
-        root.add(crearSidebar(),   BorderLayout.WEST);
-        root.add(crearContenido(), BorderLayout.CENTER);
+        root.add(topBar(),    BorderLayout.NORTH);
+        root.add(sidebar(),   BorderLayout.WEST);
+        root.add(contenido(), BorderLayout.CENTER);
         setContentPane(root);
     }
 
-    private JPanel crearTopBar() {
+    private JPanel topBar() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(DARK_GREEN);
         panel.setPreferredSize(new Dimension(1100, 55));
@@ -53,21 +53,21 @@ public class Rutas extends JFrame {
         return panel;
     }
 
-    private JPanel crearSidebar() {
+    private JPanel sidebar() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(SIDEBAR_BG);
         panel.setPreferredSize(new Dimension(200, 700));
         panel.setBorder(new EmptyBorder(30, 0, 30, 0));
-        panel.add(crearItemSidebar("🏠", "Inicio", false));
+        panel.add(itemSidebar("🏠", "Inicio", false));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("⇄",  "Rutas",  true));
+        panel.add(itemSidebar("⇄",  "Rutas",  true));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("📍", "Mapa",   false));
+        panel.add(itemSidebar("📍", "Mapa",   false));
         return panel;
     }
 
-    private JPanel crearItemSidebar(String icono, String etiqueta, boolean activo) {
+    private JPanel itemSidebar(String icono, String etiqueta, boolean activo) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 18, 10));
         panel.setMaximumSize(new Dimension(200, 48));
         panel.setBackground(activo ? DARK_GREEN : SIDEBAR_BG);
@@ -86,15 +86,15 @@ public class Rutas extends JFrame {
         return panel;
     }
 
-    private JPanel crearContenido() {
+    private JPanel contenido() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
-        panel.add(crearEncabezado(), BorderLayout.NORTH);
-        panel.add(crearPanelTabla(), BorderLayout.CENTER);
+        panel.add(encabezado(), BorderLayout.NORTH);
+        panel.add(panelTabla(), BorderLayout.CENTER);
         return panel;
     }
 
-    private JPanel crearEncabezado() {
+    private JPanel encabezado() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(LIGHT_GREEN);
         panel.setBorder(new EmptyBorder(24, 32, 24, 32));
@@ -107,16 +107,16 @@ public class Rutas extends JFrame {
         return panel;
     }
 
-    private JPanel crearPanelTabla() {
+    private JPanel panelTabla() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(20, 32, 32, 32));
-        panel.add(crearFiltros(), BorderLayout.NORTH);
-        panel.add(crearTabla(),   BorderLayout.CENTER);
+        panel.add(filtros(), BorderLayout.NORTH);
+        panel.add(scrollTabla(),   BorderLayout.CENTER);
         return panel;
     }
 
-    private JPanel crearFiltros() {
+    private JPanel filtros() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
         panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(0, 0, 16, 0));
@@ -147,7 +147,7 @@ public class Rutas extends JFrame {
         return panel;
     }
 
-    private JScrollPane crearTabla() {
+    private JScrollPane scrollTabla() {
         String[] cols = {"#", "Nombre de Ruta", "Origen", "Destino", "Paradas", "Tiempo", "Distancia", "Línea", "Estado"};
         modeloTabla = new DefaultTableModel(cols, 0) { public boolean isCellEditable(int r, int c) { return false; } };
         cargarDatos(RutaDAO.obtenerTodas());

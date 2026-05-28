@@ -36,14 +36,14 @@ public class MapaFrame extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel root = new JPanel(new BorderLayout());
-        root.add(crearTopBar(),    BorderLayout.NORTH);
-        root.add(crearSidebar(),   BorderLayout.WEST);
-        root.add(crearContenido(), BorderLayout.CENTER);
+        root.add(topBar(),    BorderLayout.NORTH);
+        root.add(sidebar(),   BorderLayout.WEST);
+        root.add(contenido(), BorderLayout.CENTER);
         setContentPane(root);
     }
 
-    // ── TOP BAR ───────────────────────────────────────────────────────────────
-    private JPanel crearTopBar() {
+    // TOP BAR
+    private JPanel topBar() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(DARK_GREEN);
         panel.setPreferredSize(new Dimension(1200, 55));
@@ -57,23 +57,23 @@ public class MapaFrame extends JFrame {
         return panel;
     }
 
-    // ── SIDEBAR ───────────────────────────────────────────────────────────────
-    private JPanel crearSidebar() {
+    //  SIDEBAR
+    private JPanel sidebar() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(SIDEBAR_BG);
         panel.setPreferredSize(new Dimension(200, 720));
         panel.setBorder(new EmptyBorder(30, 0, 30, 0));
 
-        panel.add(crearItem("🏠", "Inicio", false));
+        panel.add(itemSidebar("🏠", "Inicio", false));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItem("⇄",  "Rutas",  false));
+        panel.add(itemSidebar("⇄",  "Rutas",  false));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItem("📍", "Mapa",   true));
+        panel.add(itemSidebar("📍", "Mapa",   true));
         return panel;
     }
 
-    private JPanel crearItem(String icono, String etiqueta, boolean activo) {
+    private JPanel itemSidebar(String icono, String etiqueta, boolean activo) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 18, 10));
         panel.setMaximumSize(new Dimension(200, 48));
         panel.setBackground(activo ? DARK_GREEN : SIDEBAR_BG);
@@ -94,16 +94,16 @@ public class MapaFrame extends JFrame {
         return panel;
     }
 
-    // ── CONTENIDO ─────────────────────────────────────────────────────────────
-    private JPanel crearContenido() {
+    //  CONTENIDO
+    private JPanel contenido() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
-        panel.add(crearEncabezado(), BorderLayout.NORTH);
-        panel.add(crearCuerpoMapa(), BorderLayout.CENTER);
+        panel.add(encabezado(), BorderLayout.NORTH);
+        panel.add(cuerpoMapa(), BorderLayout.CENTER);
         return panel;
     }
 
-    private JPanel crearEncabezado() {
+    private JPanel encabezado() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(LIGHT_GREEN);
         panel.setBorder(new EmptyBorder(22, 32, 22, 32));
@@ -137,7 +137,7 @@ public class MapaFrame extends JFrame {
         return panel;
     }
 
-    private JPanel crearCuerpoMapa() {
+    private JPanel cuerpoMapa() {
         JPanel panel = new JPanel(new BorderLayout(12, 0));
         panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(16, 24, 16, 24));
@@ -185,15 +185,15 @@ public class MapaFrame extends JFrame {
         panelMapa.add(lblInfo,   BorderLayout.SOUTH);
 
         // Panel derecho: buscador
-        JPanel panelBuscador = crearPanelBuscador();
+        JPanel panelBuscador = panelBuscador();
 
         panel.add(panelMapa,    BorderLayout.CENTER);
         panel.add(panelBuscador, BorderLayout.EAST);
         return panel;
     }
 
-    // ── PANEL LATERAL (rutas posibles) ───────────────────────────────────────
-    private JPanel crearPanelBuscador() {
+    //  PANEL LATERAL (rutas posibles)
+    private JPanel panelBuscador() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(240, 248, 255));
         panel.setPreferredSize(new Dimension(280, 0));
@@ -243,7 +243,7 @@ public class MapaFrame extends JFrame {
         panel.add(header, BorderLayout.NORTH);
 
         // Panel todas las rutas ocupa todo el espacio restante
-        panelTodasRutas = crearPanelTodasRutas();
+        panelTodasRutas = panelTodasRutas();
         panel.add(panelTodasRutas, BorderLayout.CENTER);
 
         // Combos ocultos para que sincronizarCombosDesdePanel no falle
@@ -283,7 +283,7 @@ public class MapaFrame extends JFrame {
         }
     }
 
-    private JPanel crearPanelTodasRutas() {
+    private JPanel panelTodasRutas() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(240, 248, 255));
         panel.setBorder(new LineBorder(new Color(160, 200, 220), 1, true));
@@ -386,7 +386,7 @@ public class MapaFrame extends JFrame {
         panelTodasRutas.revalidate();
     }
 
-    // ── GUARDAR RUTA EN BD ────────────────────────────────────────────────────
+    //  GUARDAR RUTA EN BD
     private void guardarRuta() {
         if (!mapaPanel.tieneRuta()) {
             JOptionPane.showMessageDialog(this,

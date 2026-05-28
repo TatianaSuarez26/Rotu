@@ -21,7 +21,7 @@ public class Inicio extends JFrame {
     private static final Color BORDER_COLOR = new Color(220, 220, 220);
     private static final Color SIDEBAR_BG   = new Color(22, 78, 50);
 
-    // ID del usuario activo (Carlos Rodríguez)
+    // ID del usuario activo
     private static final int ID_USUARIO = 1;
 
     public Inicio() {
@@ -32,14 +32,14 @@ public class Inicio extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel root = new JPanel(new BorderLayout());
-        root.add(crearTopBar(),    BorderLayout.NORTH);
-        root.add(crearSidebar(),   BorderLayout.WEST);
-        root.add(crearContenido(), BorderLayout.CENTER);
+        root.add(topBar(),    BorderLayout.NORTH);
+        root.add(sidebar(),   BorderLayout.WEST);
+        root.add(contenido(), BorderLayout.CENTER);
         setContentPane(root);
     }
 
-    // ── BARRA SUPERIOR ────────────────────────────────────────────────────────
-    private JPanel crearTopBar() {
+    //  BARRA SUPERIOR
+    private JPanel topBar() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(DARK_GREEN);
         panel.setPreferredSize(new Dimension(1100, 55));
@@ -53,23 +53,23 @@ public class Inicio extends JFrame {
         return panel;
     }
 
-    // ── BARRA LATERAL ─────────────────────────────────────────────────────────
-    private JPanel crearSidebar() {
+    // BARRA LATERAL
+    private JPanel sidebar() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(SIDEBAR_BG);
         panel.setPreferredSize(new Dimension(200, 700));
         panel.setBorder(new EmptyBorder(30, 0, 30, 0));
 
-        panel.add(crearItemSidebar("🏠", "Inicio", true));
+        panel.add(itemSidebar("🏠", "Inicio", true));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("⇄",  "Rutas",  false));
+        panel.add(itemSidebar("⇄",  "Rutas",  false));
         panel.add(Box.createVerticalStrut(6));
-        panel.add(crearItemSidebar("📍", "Mapa",   false));
+        panel.add(itemSidebar("📍", "Mapa",   false));
         return panel;
     }
 
-    private JPanel crearItemSidebar(String icono, String etiqueta, boolean activo) {
+    private JPanel itemSidebar(String icono, String etiqueta, boolean activo) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 18, 10));
         panel.setMaximumSize(new Dimension(200, 48));
         panel.setBackground(activo ? DARK_GREEN : SIDEBAR_BG);
@@ -90,15 +90,15 @@ public class Inicio extends JFrame {
         return panel;
     }
 
-    // ── CONTENIDO ─────────────────────────────────────────────────────────────
-    private JScrollPane crearContenido() {
+    // CONTENIDO
+    private JScrollPane contenido() {
         JPanel contenido = new JPanel();
         contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
         contenido.setBackground(Color.WHITE);
 
-        contenido.add(crearEncabezado());
-        contenido.add(crearAccesosRapidos());
-        contenido.add(crearRutasGuardadas());
+        contenido.add(encabezado());
+        contenido.add(accesosRapidos());
+        contenido.add(rutasGuardadas());
 
         JScrollPane scroll = new JScrollPane(contenido);
         scroll.setBorder(null);
@@ -107,8 +107,8 @@ public class Inicio extends JFrame {
         return scroll;
     }
 
-    // ── ENCABEZADO ────────────────────────────────────────────────────────────
-    private JPanel crearEncabezado() {
+    // ENCABEZADO
+    private JPanel encabezado() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(LIGHT_GREEN);
@@ -138,8 +138,8 @@ public class Inicio extends JFrame {
         return panel;
     }
 
-    // ── ACCESOS RÁPIDOS ───────────────────────────────────────────────────────
-    private JPanel crearAccesosRapidos() {
+    // ACCESOS RÁPIDOS
+    private JPanel accesosRapidos() {
         JPanel outer = new JPanel();
         outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
         outer.setBackground(Color.WHITE);
@@ -157,16 +157,16 @@ public class Inicio extends JFrame {
         grid.setAlignmentX(LEFT_ALIGNMENT);
         grid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
 
-        // Buscar ruta → abre Rutas
-        JPanel cardRutas = crearTarjeta("⇄", "Buscar ruta", "Origen a destino");
+        // Buscar ruta = abre Rutas
+        JPanel cardRutas = tarjeta("⇄", "Buscar ruta", "Origen a destino");
         cardRutas.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 new Rutas().setVisible(true); dispose();
             }
         });
 
-        // Estaciones → abre Mapa
-        JPanel cardMapa = crearTarjeta("📍", "Estaciones", "Ver todas las paradas");
+        // Estaciones = abre Mapa
+        JPanel cardMapa = tarjeta("📍", "Estaciones", "Ver todas las paradas");
         cardMapa.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 new MapaFrame().setVisible(true); dispose();
@@ -180,7 +180,7 @@ public class Inicio extends JFrame {
         return outer;
     }
 
-    private JPanel crearTarjeta(String icono, String titulo, String subtitulo) {
+    private JPanel tarjeta(String icono, String titulo, String subtitulo) {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBackground(CARD_BG);
@@ -213,8 +213,8 @@ public class Inicio extends JFrame {
         return card;
     }
 
-    // ── MIS RUTAS GUARDADAS (desde BD) ────────────────────────────────────────
-    private JPanel crearRutasGuardadas() {
+    // MIS RUTAS GUARDADAS
+    private JPanel rutasGuardadas() {
         JPanel outer = new JPanel();
         outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
         outer.setBackground(Color.WHITE);
@@ -242,7 +242,7 @@ public class Inicio extends JFrame {
                 String nombre   = r[0];
                 String detalles = r[3] + " paradas · " + r[5];
                 String tiempo   = r[4] + " min";
-                outer.add(crearItemRuta(nombre, detalles, tiempo));
+                outer.add(itemRuta(nombre, detalles, tiempo));
                 if (i < rutas.size() - 1) outer.add(new JSeparator());
             }
         }
@@ -250,7 +250,6 @@ public class Inicio extends JFrame {
         return outer;
     }
 
-    /** Consulta las rutas guardadas del usuario activo junto con sus datos. */
     private List<String[]> cargarRutasGuardadas() {
         List<String[]> lista = new ArrayList<>();
         String sql = """
@@ -281,7 +280,7 @@ public class Inicio extends JFrame {
         return lista;
     }
 
-    private JPanel crearItemRuta(String ruta, String detalles, String tiempo) {
+    private JPanel itemRuta(String ruta, String detalles, String tiempo) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(12, 0, 12, 0));
@@ -322,7 +321,7 @@ public class Inicio extends JFrame {
         return panel;
     }
 
-    // ── MAIN ──────────────────────────────────────────────────────────────────
+    //  MAIN
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Inicio().setVisible(true));
     }
